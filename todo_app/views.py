@@ -7,8 +7,7 @@ from django.contrib import messages
 def home(request):
     tasks = Task.objects.filter(is_completed=False).order_by('-updated_on')
     completed_tasks = Task.objects.filter(is_completed=True)
-    print(tasks)
-    print(completed_tasks)
+
     context = {
         'tasks':tasks,
         'completed_tasks':completed_tasks

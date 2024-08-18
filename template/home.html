@@ -29,6 +29,17 @@
         padding: 1.375rem 0.75rem !important;
       }
     </style>
+    <style>
+      .btn-red {
+        background-color: rgb(207, 49, 49);
+        border-color: red;
+        color: white; /* Optional: changes text color to white for better contrast */
+      }
+
+      .btn-red:hover {
+        background-color: darkred; /* Optional: changes button color on hover */
+      }
+    </style>
   </head>
   <body>
     <div class="container">
@@ -40,25 +51,78 @@
           <!-- List of all the tasks for the day -->
           {% for task in tasks %}
           <div class="card m-1">
-            <div class="card-body">
+            <div id="card-body-{{ task.pk }}" class="card-body">
               {{ task.task }}
               <span style="position: relative; float: right">
-                <a class="btn btn-success"
-                  ><i class="fa fa-check"></i> Mark as Done</a
-                >
-                <a class="btn btn-danger"><i class="fa fa-trash"></i></a>
-                <a class="btn btn-primary"><i class="fa fa-pencil"></i></a>
+                <a href="{% url 'mark_done' task.pk %}" class="btn btn-success"
+                  ><i class="fa fa-check"></i> Mark as Done
+                </a>
+                <a href="{% url 'del' task.pk %}" class="btn btn-danger"
+                  ><i class="fa fa-trash"></i>
+                </a>
+                <a
+                  href="#"
+                  onclick="showEditForm('{{ task.pk }}'); event.preventDefault();"
+                  class="btn btn-primary"
+                  ><i class="fa fa-pencil"></i>
+                </a>
               </span>
             </div>
+            <!-- Show Edit Form -->
+            <div id="task-edit-form-{{ task.pk }}" style="display: none">
+              <form action="{% url 'update' task.pk %}" method="post">
+                {% csrf_token %}
+                <input
+                  type="text"
+                  name="task"
+                  value="{{ task.task }}"
+                  class="form-control"
+                />
+                <button type="submit" class="btn btn-primary">Save</button>
+                <button
+                  type="button"
+                  class="btn btn-secondary"
+                  onclick="cancelEdit('{{ task.pk }}')"
+                >
+                  Cancel
+                </button>
+              </form>
+            </div>
+            <!-- End -->
           </div>
           {% endfor %}
         </div>
+
+        <script>
+          function showEditForm(taskId) {
+            document.getElementById("card-body-" + taskId).style.display =
+              "none";
+            document.getElementById("task-edit-form-" + taskId).style.display =
+              "block";
+          }
+          function cancelEdit(taskId) {
+            document.getElementById("card-body-" + taskId).style.display =
+              "block";
+            document.getElementById("task-edit-form-" + taskId).style.display =
+              "none";
+          }
+        </script>
+
         <div class="col-md-5 col-lg-5">
           <h5>Completed Tasks</h5>
           <!-- List of all the tasks that have completed -->
           {% for task in completed_tasks %}
           <div class="card m-1">
-            <div class="card-body">{{task.task}}</div>
+            <div class="card-body">
+              {{task.task}}
+              <span style="position: relative; float: right">
+                <a
+                  href="{% url 'mark_as_incomplete' task.pk %}"
+                  class="btn btn-danger"
+                  ><i class="fa fa-times-circle"></i> Mark as Undone
+                </a>
+              </span>
+            </div>
           </div>
           {% endfor %}
         </div>
